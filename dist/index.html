@@ -1,0 +1,79 @@
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="./bundle.js"></script>
+  </head>
+  <body>
+    <a-scene  stats pool__enemy="mixin: enemy; size: 2;">
+      <!-- assets -->
+      <a-assets>
+        <a-asset-item id="duck_1" src="/assets/duck_1/scene.gltf"></a-asset-item>
+        <a-mixin id="enemy_back" enemy="y: 0" follow="speed: 2; target: #rig" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" target="healthPoints: 5; static: false" hit-handler></a-mixin>
+      </a-assets>
+
+      <!-- test -->
+      <a-entity class="enemy_1" follow="speed: 2; target: #rig" class="target" target="healthPoints: 10; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" position="0 0 -4" hit-handler></a-entity>
+      
+      <!-- Bullet template -->
+      <a-entity id="bulletTemplate" bullet geometry="primitive: icosahedron; radius: 0.1" material="color: orange"></a-entity>
+      
+      <!-- plain -->
+      <a-plane position="0 0 -4" rotation="-90 0 0" width="40" height="40" color="#7BC8A4" static-body></a-plane>
+
+      <!-- boxes -->
+      <a-entity mixin="enemy"></a-entity>
+
+      <!-- player -->
+      <a-entity id="rig" movement-controls position="0 1.7 3">
+        <a-entity id="camera" camera look-controls="pointerLockEnabled: true">
+          <a-entity
+            geometry="primitive: circle; radius: 0.005"
+            material="color: black"
+            position="0 0 -1"
+            cursor
+            raycaster="objects: [hover-highlighter]; far: 1.5"
+          ></a-entity>
+          <a-entity id="gun" shooter geometry="primitive: box; width: 0.1; height: 0.1; depth: 0.3" material="color: red" click-to-shoot position="0.5 -0.5 -1"></a-entity>
+        </a-entity>
+      </a-entity>
+      
+    </a-scene>
+    <script>
+
+      let sceneEl = document.querySelector('a-scene');
+      let enemy_1 = document.querySelector('.enemy_1');
+
+      setInterval(() => {
+        let el = enemy_1.cloneNode(false)
+        sceneEl.appendChild(el)
+        setTimeout(() => {
+          el.parentNode.removeChild(el);
+        }, 2000)
+      }, 1500)
+
+      /* setInterval(() => {
+        let el = sceneEl.components.pool__enemy.requestEntity();
+        el.play();
+        setTimeout(() => {
+          sceneEl.components.pool__enemy.returnEntity(el);
+        }, 2000)
+      }, 1500) */
+
+      AFRAME.registerComponent('hit-handler', {
+        init: function () {
+          var el = this.el;
+
+          el.addEventListener('hit', () => {
+            console.log("hit")
+          });
+
+          el.addEventListener('die', () => {
+            console.log("die")
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
