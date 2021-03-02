@@ -3,77 +3,75 @@
     <script src="https://aframe.io/releases/1.1.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/n5ro/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"></script>
     <script src="./bundle.js"></script>
   </head>
   <body>
-    <a-scene  stats pool__enemy="mixin: enemy; size: 2;">
+    <a-scene  stats pool__enemy="mixin: enemy; size: 2;" fog="type: linear; color: #a3d0ed; near: 20; far: 30">
+      <!-- managers -->
+      <a-entity id="game-manager" game-manager></a-entity>
+      <a-entity id="hardware-manager" hardware-manager></a-entity>
+
       <!-- assets -->
       <a-assets>
         <a-asset-item id="duck_1" src="/assets/duck_1/scene.gltf"></a-asset-item>
-        <a-mixin id="enemy_back" enemy="y: 0" follow="speed: 2; target: #rig" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" target="healthPoints: 5; static: false" hit-handler></a-mixin>
+        <a-asset-item id="gun" src="/assets/pysics_gun_ugen/scene.gltf"></a-asset-item>
+        <!-- <a-mixin id="enemy_back" enemy="y: 0" follow="speed: 2; target: #rig" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" target="healthPoints: 5; static: false" hit-handler></a-mixin> -->
       </a-assets>
 
-      <!-- test -->
-      <a-entity class="enemy_1" follow="speed: 2; target: #rig" class="target" target="healthPoints: 10; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" position="0 0 -4" hit-handler></a-entity>
-      
+      <!-- enemies -->
+      <a-entity class="enemy_1" enemy="y: -2" follow="speed: 2; target: #rig" class="target" target="healthPoints: 1; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.18 0.18 0.18" hit-handler></a-entity>
+      <a-entity enemy-spawner listen-to="target: #game-manager; event: end-game; emit: end-game"></a-entity>
+
       <!-- Bullet template -->
       <a-entity id="bulletTemplate" bullet geometry="primitive: icosahedron; radius: 0.1" material="color: orange"></a-entity>
       
       <!-- plain -->
-      <a-plane position="0 0 -4" rotation="-90 0 0" width="40" height="40" color="#7BC8A4" static-body></a-plane>
+      <!-- <a-plane position="0 0 -4" rotation="-90 0 0" width="40" height="40" color="#7BC8A4" static-body></a-plane> -->
 
-      <!-- boxes -->
-      <a-entity mixin="enemy"></a-entity>
+      <!-- plateform -->
+      <a-hexatile position="0 -1.7 0" size="3" cellsize="0.8" color="#216138"></a-hexatile>
+      <a-ocean position="0 -1.2 0" depth="400" width="400" amplitude="0.2" amplitude-variance="0.1" opacity="1" density="50"></a-ocean>
 
       <!-- player -->
-      <a-entity id="rig" movement-controls position="0 1.7 3">
-        <a-entity id="camera" camera look-controls="pointerLockEnabled: true">
+      <a-entity id="rig" movement-controls position="0 0 0">
+        <a-entity id="camera" camera look-controls="pointerLockEnabled: true" position="0 1.7 0">
           <a-entity
-            geometry="primitive: circle; radius: 0.005"
+            geometry="primitive: circle; radius: 0.0005"
             material="color: black"
-            position="0 0 -1"
+            position="0 0 -0.1"
             cursor
+            disable-in-vr="component: geometry"
+            disable-in-vr__cursor="component: cursor"
             raycaster="objects: [hover-highlighter]; far: 1.5"
           ></a-entity>
-          <a-entity id="gun" shooter geometry="primitive: box; width: 0.1; height: 0.1; depth: 0.3" material="color: red" click-to-shoot position="0.5 -0.5 -1"></a-entity>
+          <a-entity id="gun" position="0.5 -0.7 -1.2" class="vr-except">
+            <a-entity score text="value: 0; align: center; color: purple" position="-0.022 0.11 0"></a-entity>
+            <a-entity gltf-model="#gun" scale="0.15 0.15 0.15" position="0 -0.3 0.2"></a-entity>
+          </a-entity>
+        </a-entity>
+
+        <!-- hands -->
+        <a-entity id="hands" bind-rotation="target: #camera" disable-in-vr="component: bind-rotation">
+          <a-entity id="left-hand"
+            position="-0.3 0 -0.3"
+            rotation="0 0 90"
+            hand-controls="hand: left"
+          ></a-entity>
+          <a-entity id="right-hand"
+            position="0.5 1.0 -1.5"
+            rotation="0 0 -90"
+            hand-controls="hand: right"
+            shooter click-to-shoot
+          >
+            <a-entity score text="value: 0; align: left; color: purple" position="-0.045 0.052 0.79" rotation=" 0 -90 0"></a-entity>
+            <a-entity gltf-model="#gun" scale="0.15 0.15 0.15" position=" 0 -0.3 0"></a-entity>
+          </a-entity>
         </a-entity>
       </a-entity>
       
     </a-scene>
     <script>
-
-      let sceneEl = document.querySelector('a-scene');
-      let enemy_1 = document.querySelector('.enemy_1');
-
-      setInterval(() => {
-        let el = enemy_1.cloneNode(false)
-        sceneEl.appendChild(el)
-        setTimeout(() => {
-          el.parentNode.removeChild(el);
-        }, 2000)
-      }, 1500)
-
-      /* setInterval(() => {
-        let el = sceneEl.components.pool__enemy.requestEntity();
-        el.play();
-        setTimeout(() => {
-          sceneEl.components.pool__enemy.returnEntity(el);
-        }, 2000)
-      }, 1500) */
-
-      AFRAME.registerComponent('hit-handler', {
-        init: function () {
-          var el = this.el;
-
-          el.addEventListener('hit', () => {
-            console.log("hit")
-          });
-
-          el.addEventListener('die', () => {
-            console.log("die")
-          });
-        }
-      });
     </script>
   </body>
 </html>

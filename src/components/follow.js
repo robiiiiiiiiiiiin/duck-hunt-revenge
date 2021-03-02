@@ -6,6 +6,13 @@ AFRAME.registerComponent('follow', {
 
     init: function () {
         this.directionVec3 = new THREE.Vector3();
+        this.gameManager = document.querySelector('#game-manager');
+        
+        this.el.addEventListener('player-dead', () => this.pause() );
+        this.stepUp = this.el.object3D.position.y + 0.3
+    },
+
+    pause: function() {
     },
 
     tick: function (time, timeDelta) {
@@ -20,15 +27,23 @@ AFRAME.registerComponent('follow', {
         let currentPosition = this.el.object3D.position;
         directionVec3.copy(targetPosition).sub(currentPosition);
         let distance = directionVec3.length();
-        if (distance < 1) { return; }
+        // detect if enemy is on the platform
+        if (distance < 4.5) {
+            this.el.object3D.position.y = this.stepUp
+        }
+        // detect if enemy reached player
+        if (distance < 1) {
+            this.gameManager.emit('enemy-reached-player');
+            return;
+        }
         let factor = this.data.speed / distance;
         ['x', 'y', 'z'].forEach(function (axis) {
             directionVec3[axis] *= factor * (timeDelta / 1000);
         });
-        this.el.setAttribute('position', {
-            x: currentPosition.x + directionVec3.x,
-            y: currentPosition.y + directionVec3.y,
-            z: currentPosition.z + directionVec3.z
-        });
+        this.el.object3D.position.set(
+            currentPosition.x + directionVec3.x, 
+            currentPosition.y + directionVec3.y, 
+            currentPosition.z + directionVec3.z
+        );
     },
 });
