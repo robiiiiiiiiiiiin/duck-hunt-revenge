@@ -15,6 +15,6 @@
     "webpack-cli": "^4.5.0"
   },
   "dependencies": {
-    "aframe-super-shooter-kit": "^1.1.7"
+    "aframe-look-at-component": "^1.0.0"
   }
 }

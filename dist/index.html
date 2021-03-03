@@ -7,7 +7,7 @@
     <script src="./bundle.js"></script>
   </head>
   <body>
-    <a-scene  stats pool__enemy="mixin: enemy; size: 2;" fog="type: linear; color: #a3d0ed; near: 20; far: 30">
+    <a-scene  stats pool__enemy="mixin: enemy; size: 2;"> <!-- fog="type: linear; color: #a3d0ed; near: 20; far: 30" -->
       <!-- managers -->
       <a-entity id="game-manager" game-manager></a-entity>
       <a-entity id="hardware-manager" hardware-manager></a-entity>
@@ -16,22 +16,42 @@
       <a-assets>
         <a-asset-item id="duck_1" src="/assets/duck_1/scene.gltf"></a-asset-item>
         <a-asset-item id="gun" src="/assets/pysics_gun_ugen/scene.gltf"></a-asset-item>
-        <!-- <a-mixin id="enemy_back" enemy="y: 0" follow="speed: 2; target: #rig" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" target="healthPoints: 5; static: false" hit-handler></a-mixin> -->
+        <a-asset-item id="boss" src="/assets/rubber_duck/scene.gltf"></a-asset-item>
+        <!-- <a-mixin id="enemy_back" enemy="y: 0" follow="speed: 2; target: #rig" geometry="primitive: box" gltf-model="#duck_1" scale="0.1 0.1 0.1" target="healthPoints: 5; static: false"></a-mixin> -->
       </a-assets>
 
       <!-- enemies -->
-      <a-entity class="enemy_1" enemy="y: -2" follow="speed: 2; target: #rig" class="target" target="healthPoints: 1; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.18 0.18 0.18" hit-handler></a-entity>
-      <a-entity enemy-spawner listen-to="target: #game-manager; event: end-game; emit: end-game"></a-entity>
+      <!-- <a-entity class="enemy_1" enemy="y: -2" follow="speed: 2; target: #rig" class="target" target="healthPoints: 1; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.18 0.18 0.18"></a-entity> -->
+      <a-entity position="-12 2 -20" boss="lookAt: #rig;">
+        <a-entity id="boss-duck" rotation="30 0 0" gltf-model="#boss" scale="150 150 150"
+        animation__leanBack="property: rotation; to: -45 0 0; dur: 2000; easing: easeOutCubic; startEvents: weapon1ready"
+        animation__leanFront="property: rotation; to: 30 0 0; dur: 300; easing: linear; startEvents: weapon1shoot">
+          <a-entity id="boss-head" target="healthPoints: 10000; static: false; sphere: true; radius: 4" class="target" position="0 0.05 0.02" material="color: red; opacity: 0.5" geometry="primitive: sphere; radius: 0.028"></a-entity>
+          <a-entity id="boss-body" target="healthPoints: 10000; static: false; sphere: true; radius: 7" class="target" material="color: red; opacity: 0.5" geometry="primitive: sphere; radius: 0.05"></a-entity>
+        </a-entity>
+      </a-entity>
+
+        <a-entity class="weapon-1" material="color: red; opacity: 1" geometry="primitive: icosahedron; radius: 1" scale="0 0 0" position="0 0 -15"
+        animation="property: scale; to: 1 1 1; dur: 3000; easing: linear; startEvents: grow-weapon"></a-entity>
+
+      <!-- <a-entity enemy-spawner listen-to="target: #game-manager; event: end-game; emit: end-game"></a-entity> -->
 
       <!-- Bullet template -->
       <a-entity id="bulletTemplate" bullet geometry="primitive: icosahedron; radius: 0.1" material="color: orange"></a-entity>
-      
-      <!-- plain -->
-      <!-- <a-plane position="0 0 -4" rotation="-90 0 0" width="40" height="40" color="#7BC8A4" static-body></a-plane> -->
 
-      <!-- plateform -->
-      <a-hexatile position="0 -1.7 0" size="3" cellsize="0.8" color="#216138"></a-hexatile>
-      <a-ocean position="0 -1.2 0" depth="400" width="400" amplitude="0.2" amplitude-variance="0.1" opacity="1" density="50"></a-ocean>
+      <!-- plateforms -->
+      <a-hexatile position="0 -25.7 0" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+      <!-- <a-entity class="secondary_plateforms" position="0 -40.7 0" animation="property: object3D.position.y; to: -25.7; dur: 8000; easing: linear; startEvents: bossStage"> -->
+      <a-entity class="secondary_plateforms" position="0 -25.7 0">
+        <a-hexatile position="0 0 -20" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+        <a-hexatile position="0 0 20" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+        <a-hexatile position="-17 0 10" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+        <a-hexatile position="-17 0 -10" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+        <a-hexatile position="17 0 10" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+        <a-hexatile position="17 0 -10" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>
+      </a-entity>
+      <!-- <a-ocean position="0 -1.2 0" depth="400" width="400" amplitude="0.2" amplitude-variance="0.1" opacity="1" density="50" animation="property: object3D.position.y; to: -20; dur: 4000; easing: linear; startEvents: bossStage"></a-ocean> -->
+      <a-ocean position="0 -20 0" depth="400" width="400" amplitude="0.2" amplitude-variance="0.1" opacity="1" density="50" animation="property: object3D.position.y; to: -20; dur: 4000; easing: linear; startEvents: bossStage"></a-ocean>
 
       <!-- player -->
       <a-entity id="rig" movement-controls position="0 0 0">
