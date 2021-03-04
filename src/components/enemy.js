@@ -9,18 +9,13 @@ AFRAME.registerComponent('enemy', {
         this.gameManager = document.getElementById('game-manager')
 
         // set inital position & rotation
-        const positions = [
-            /* N */  {x: 0, z: -30, rotation: THREE.Math.degToRad(0)},
-            /* NE */ {x: 30, z: -30, rotation: THREE.Math.degToRad(315)},
-            /* E */  {x: 30, z: 0, rotation: THREE.Math.degToRad(270)},
-            /* SE */ {x: 30, z: 30, rotation: THREE.Math.degToRad(225)},
-            /* S */  {x: 0, z: 30, rotation: THREE.Math.degToRad(180)},
-            /* SO */ {x: -30, z: 30, rotation: THREE.Math.degToRad(135)},
-            /* O */  {x: -30, z: 0, rotation: THREE.Math.degToRad(90)},
-            /* NO */ {x: -30, z: -30, rotation: THREE.Math.degToRad(45)}
-        ]
-        const random = Math.floor(Math.random() * positions.length);
-        const position = positions[random];
+        this.spawnRadius = 35
+        let randAngle = Math.random()*Math.PI*2;
+        let position = {
+            x: Math.cos(randAngle) * this.spawnRadius,
+            z: Math.sin(randAngle) * this.spawnRadius,
+            rotation: -randAngle - THREE.Math.degToRad(90)
+        }
         this.el.object3D.position.set(position.x, this.data.y, position.z);
         this.el.object3D.rotation.y = position.rotation;
 

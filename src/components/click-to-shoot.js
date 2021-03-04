@@ -9,6 +9,6 @@ AFRAME.registerComponent('click-to-shoot', {
         this.el.emit('shoot');
         setTimeout(() => {
             document.body.addEventListener('mousedown', this.handler)
-        }, 100)
+        }, 300)
     }
 });

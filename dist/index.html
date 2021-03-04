@@ -11,8 +11,11 @@
       listen-to="target: #game-manager; event: bossStage; emit: bossStage"
       animation__near="property: fog.near; to: 40; dur: 4000; easing: linear; startEvents: bossStage"
       animation__far="property: fog.far; to: 50; dur: 4000; easing: linear; startEvents: bossStage"> <!-- fog="type: linear; color: #a3d0ed; near: 20; far: 30" -->
+      
       <!-- managers -->
-      <a-entity id="game-manager" game-manager></a-entity>
+      <a-entity id="game-manager" game-manager
+        sound__stage1="src: #stage1-theme; loop: true; on: stage1-theme-start; positional: false; volume: 0.7; autoplay: true"
+        sound__boss="src: #boss-theme; loop: true; on: boss-theme-start; positional: false; volume: 0.9"></a-entity>
       <a-entity id="hardware-manager" hardware-manager></a-entity>
       <a-entity enemy-spawner listen-to="target: #game-manager; event: bossStage; emit: bossStage"></a-entity>
 
@@ -21,7 +24,11 @@
         <a-asset-item id="duck_1" src="/assets/duck_1/scene.gltf"></a-asset-item>
         <a-asset-item id="gun" src="/assets/pysics_gun_ugen/scene.gltf"></a-asset-item>
         <a-asset-item id="boss" src="/assets/rubber_duck/scene.gltf"></a-asset-item>
+        <!-- songs -->
+        <audio id="stage1-theme" src="/assets/audio/stage1-theme.mp3" preload="auto"></audio>
+        <audio id="boss-theme" src="/assets/audio/boss-theme.mp3" preload="auto"></audio>
       </a-assets>
+
       <!-- templates -->
       <a-entity class="enemy_1" enemy="y: -2" follow="speed: 2; target: #rig" class="target" target="healthPoints: 1; static: false" geometry="primitive: box" gltf-model="#duck_1" scale="0.18 0.18 0.18"
         listen-to="target: #game-manager; event: bossStage; emit: die"></a-entity>
@@ -32,6 +39,7 @@
       </a-entity>
 
       <!-- boss -->
+      <!-- y: prod: -40 test: 2 -->
       <a-entity id="boss-wrapper" position="0 -40 -28"
         listen-to="target: #game-manager; event: bossEntry; emit: bossEntry"
         animation="property: object3D.position.y; to: 2; dur: 1000; easing: easeOutBack; startEvents: bossEntry">
@@ -39,8 +47,10 @@
         <a-entity boss="lookAt: #rig;">
           <a-entity id="boss-duck" rotation="30 0 0" gltf-model="#boss" scale="150 150 150"
             listen-to="target: #boss-wrapper; event: animationcomplete; emit: appear"
-            animation__leanBack="property: rotation; to: -45 0 0; dur: 2000; easing: easeOutCubic; startEvents: weapon1ready"
-            animation__leanFront="property: rotation; to: 30 0 0; dur: 300; easing: linear; startEvents: leanFront">
+            listen-to__leanBack="target: #boss-duck; event: weapon1ready; emit: leanBack"
+            animation__leanBack="property: rotation; to: -45 0 0; dur: 2000; easing: easeOutCubic; startEvents: leanBack"
+            animation__leanFront="property: rotation; to: 30 0 0; dur: 300; easing: linear; startEvents: leanFront"
+            animation__backflip="property: rotation; from: 30 0 0; to: -330 0 0; dur: 2000; easing: easeOutBack; startEvents: backflip">
             <a-entity id="boss-head" target="healthPoints: 10000; static: false; sphere: true; radius: 4" class="target" geometry="primitive: tetrahedron; radius: 0.03" material="color: red; opacity: 0" position="0 0.05 0.02"></a-entity>
             <a-entity id="boss-body" target="healthPoints: 10000; static: false; sphere: true; radius: 7" class="target" geometry="primitive: tetrahedron; radius: 0.05" material="color: red; opacity: 0"></a-entity>
           </a-entity>
@@ -48,7 +58,7 @@
       </a-entity>
 
       <!-- Bullet template -->
-      <a-entity id="bulletTemplate" bullet geometry="primitive: icosahedron; radius: 0.1" material="color: orange"></a-entity>
+      <a-entity id="bulletTemplate" bullet="maxTime: 6; poolSize: 40; speed: 8" geometry="primitive: icosahedron; radius: 0.1" material="color: orange"></a-entity>
 
       <!-- plateforms -->
       <a-hexatile position="0 -25.7 0" size="3" cellsize="0.8" color="#216138" height="25"></a-hexatile>

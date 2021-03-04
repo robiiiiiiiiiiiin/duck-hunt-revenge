@@ -9,7 +9,14 @@ AFRAME.registerComponent('game-manager', {
         this.life = 5
         this.score = 0
         this.scoreForBoss = 1000
+        this.handl_theme1 = () => this.playTheme1()
 
+        //music
+        this.el.addEventListener('sound-loaded', (evt) => {
+            if (evt.detail.id == "stage1") {
+                document.body.addEventListener('mousedown', this.handl_theme1);
+            }
+        });
         // life down listeners
         this.el.addEventListener('enemy-reached-player', () => {
             this.lifeDown()
@@ -44,6 +51,8 @@ AFRAME.registerComponent('game-manager', {
 
     bossStageAppear: function() {
         this.el.emit('bossStage')
+        this.el.components.sound__stage1.stopSound()
+        this.el.emit('boss-theme-start')
         setTimeout(() => {
             this.activateTeleporter()
         }, 8000)
@@ -86,5 +95,12 @@ AFRAME.registerComponent('game-manager', {
                 enabled: true
             })
         }
+    },
+
+    playTheme1: function() {
+        // I need to do this to workaround a bug in case it appears
+        this.el.components.sound__stage1.pauseSound()
+        this.el.components.sound__stage1.playSound()
+        document.body.removeEventListener('mousedown', this.handl_theme1);
     }
 });
