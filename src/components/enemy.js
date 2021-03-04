@@ -63,6 +63,5 @@ AFRAME.registerComponent('enemy', {
         }
         setTimeout(() => {el.pause()}, 150)
         setTimeout(() => {el.parentNode.removeChild(el)}, 500)
-        
     },
 });

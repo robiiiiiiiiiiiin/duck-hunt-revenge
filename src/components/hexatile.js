@@ -19,6 +19,7 @@ AFRAME.registerComponent('hexatile', {
   schema: {
     size: {type: 'int', default: 10},
     color: {type: 'color', default: '#216138'},
+    rayInterColor: {type: 'color', default: '#18a370'},
     'color-variation': {type: 'boolean', default: true},
     'color-variation-entropy': {type: 'int', default: 20},
     'color-variation-number': {type: 'int', default: 3},
@@ -31,7 +32,24 @@ AFRAME.registerComponent('hexatile', {
     this.colorVariation = [];
     this.colorVariationMaterial = [];
     this.colorNodesVariation = new Map();
+    this.rayInterClearColor = this.data.color
     this.genAll();
+    this.worldPosition = new THREE.Vector3();
+
+    // raycaster
+    this.el.addEventListener('raycaster-intersected', function () {
+      this.data.color = this.data.rayInterColor
+      //this.update({color: this.rayInterClearColor})
+      this.changeColor()
+      this.el.addEventListener('mousedown', () => this.teleport());
+    }.bind(this));
+    this.el.addEventListener('raycaster-intersected-cleared', function () {
+      this.data.color = this.rayInterClearColor
+      //this.update({color: this.data.rayInterColor})
+      this.changeColor()
+      this.el.removeEventListener('mousedown', () => this.teleport());
+    }.bind(this));
+
   },
   genAll: function () {
     this.genVertices();
@@ -116,6 +134,11 @@ AFRAME.registerComponent('hexatile', {
         this.colorVariationMaterial.push(new THREE.MeshLambertMaterial({color: new THREE.Color(...rgbVariation)}));
       }
     }
+  },
+  changeColor: function() {
+    this.genMaterial();
+    this.genColorVariationMaterial(true);
+    this.mergeGeometry();
   },
   applyColorVariation: function (refresh = false) {
     if (!this.data['color-variation']) return;
@@ -206,6 +229,14 @@ AFRAME.registerComponent('hexatile', {
     this.geometrySettings.depth = this.data.height;
     this.geometry = new THREE.ExtrudeGeometry(this.shape, this.geometrySettings);
     this.tilemap.forEach(node => node.geometry = this.geometry);
+  },
+  teleport: function() {
+    let hexatilePosition = this.el.object3D.getWorldPosition(this.worldPosition)
+    document.getElementById('rig').object3D.position.set(
+      hexatilePosition.x,
+      0,
+      hexatilePosition.z
+    )
   },
   remove: function () {
     this.el.removeObject3D('mesh');

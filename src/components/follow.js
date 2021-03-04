@@ -34,6 +34,7 @@ AFRAME.registerComponent('follow', {
         // detect if enemy reached player
         if (distance < 1) {
             this.gameManager.emit('enemy-reached-player');
+            this.el.removeAttribute('follow')
             return;
         }
         let factor = this.data.speed / distance;

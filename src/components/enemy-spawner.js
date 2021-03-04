@@ -7,7 +7,7 @@ AFRAME.registerComponent('enemy-spawner', {
         this.enemy_1 = document.querySelector('.enemy_1');
   
         this.throttledFunction = AFRAME.utils.throttle(this.enemySpawner, 2000, this);
-        this.el.addEventListener('end-game', () => {this.pause()})
+        this.el.addEventListener('bossStage', () => {this.pause()})
     },
 
     update: function () {

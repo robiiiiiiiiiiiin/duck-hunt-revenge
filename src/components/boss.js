@@ -11,38 +11,41 @@ AFRAME.registerComponent('boss', {
     },
 
     init: function () {
+        this.sceneEl = document.querySelector('a-scene');
         this.gameManager = document.getElementById('game-manager')
         this.player = document.getElementById('rig')
         this.duck = document.getElementById('boss-duck')
+        this.lifeBar = document.getElementById('boss-life')
+        this.lifeBarInitialWidth = 20
+        this.maxLife = this.data.life
         this.target = this.data.lookAt.object3D.position
         this.lookAtActive = true
-        this.weapons1 = document.querySelectorAll('.weapon-1')
-        this.playerPosition
+        this.weapon1 = document.querySelector('.weapon-1')
 
-        console.log(this.duck)
-
+        this.el.addEventListener('appear', () => {
+            setTimeout(() => {
+                this.weapon1trigger()
+            }, 1500);
+        });
         this.el.addEventListener('toggle-look-at', () => {
             this.lookAtActive = !this.lookAtActive
         });
-        this.el.addEventListener('hit', () => this.hitted(this.el) );
-        this.weapons1[0].addEventListener('animationcomplete', () => {
-            console.log('weapon1ready')
-            this.duck.emit('weapon1ready')
+        this.el.addEventListener('hit', () => {
+            this.hitted(this.el)
         });
         this.duck.addEventListener('animationcomplete', (evt) => {
             switch (evt.detail.name) {
                 case "animation__leanback":
-                    this.playerPosition = this.player.object3D.position
-                    this.duck.emit('weapon1shoot')
+                    this.duck.emit('leanFront')
                     break;
                 case "animation__leanfront":
-                    this.weapon1shoot()
+                    this.duck.emit('weapon1shoot')
+                    setTimeout(() => {
+                        this.weapon1trigger()
+                    }, 2500);
                     break;
             }
         });
-
-        this.weapon1prepare()
-        
     },
 
     update: function () {
@@ -62,27 +65,21 @@ AFRAME.registerComponent('boss', {
     },
 
     hitted: function (el) {
-        console.log("hit boss")
         this.data.life -= 1
         if (this.data.life <= 0) this.died()
+        let lifeBarWidth = (this.data.life / this.maxLife) * this.lifeBarInitialWidth
+        if (lifeBarWidth < 0) lifeBarWidth = 0
+        this.lifeBar.setAttribute('geometry', {width: lifeBarWidth})
     },
 
     died: function (el) {
         console.log("die boss")
     },
 
-    weapon1prepare: function() {
-        this.weapons1.forEach(bullet => {
-            bullet.emit('grow-weapon')
-        });
-    },
-    weapon1shoot: function() {
-        this.weapons1.forEach(bullet => {
-            bullet.setAttribute('weapon-shoot', {
-                target: `${this.playerPosition.x} ${this.playerPosition.y} ${this.playerPosition.z}`,
-                speed: 8
-            })
-        });
+    weapon1trigger: function() {
+        let newW1 = this.weapon1.cloneNode(false)
+        this.sceneEl.appendChild(newW1)
+        newW1.setAttribute('weapon-1', '')
     },
 
     runAway: function() {

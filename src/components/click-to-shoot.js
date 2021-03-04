@@ -5,12 +5,10 @@ AFRAME.registerComponent('click-to-shoot', {
     },
 
     shoot: function() {
-        console.log("click")
         document.body.removeEventListener('mousedown', this.handler);
         this.el.emit('shoot');
         setTimeout(() => {
             document.body.addEventListener('mousedown', this.handler)
         }, 100)
     }
-
 });
