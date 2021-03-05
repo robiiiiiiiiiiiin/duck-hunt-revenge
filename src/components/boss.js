@@ -41,9 +41,11 @@ AFRAME.registerComponent('boss', {
             switch (evt.detail.name) {
                 case "animation__leanback":
                     this.duck.emit('leanFront')
+                    this.duck.emit('attack1-sound')
                     break;
                 case "animation__leanfront":
                     this.duck.emit('weapon1shoot')
+                    this.newW1.emit('weapon1-sound')
                     setTimeout(() => {
                         this.weapon1trigger()
                     }, 2500);
@@ -81,9 +83,9 @@ AFRAME.registerComponent('boss', {
     },
 
     weapon1trigger: function() {
-        let newW1 = this.weapon1.cloneNode(false)
-        this.sceneEl.appendChild(newW1)
-        newW1.setAttribute('weapon-1', '')
+        this.newW1 = this.weapon1.cloneNode(false)
+        this.sceneEl.appendChild(this.newW1)
+        this.newW1.setAttribute('weapon-1', '')
     },
 
     attackPhase1: function() {

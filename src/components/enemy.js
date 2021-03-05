@@ -42,7 +42,9 @@ AFRAME.registerComponent('enemy', {
 
     died: function (el) {
         console.log("die")
+        this.el.emit('quack-sound')
         this.gameManager.emit('die')
+        // fall & disappear
         if(Math.floor(Math.random() * 2) == 1) {
             if(Math.floor(Math.random() * 2) == 1) {
                 el.object3D.rotation.x = THREE.Math.degToRad(-90)

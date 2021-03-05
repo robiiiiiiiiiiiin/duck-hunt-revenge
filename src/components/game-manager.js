@@ -8,7 +8,7 @@ AFRAME.registerComponent('game-manager', {
         this.lifeMax = 5
         this.life = 5
         this.score = 0
-        this.scoreForBoss = 1000
+        this.scoreForBoss = 50
         this.handl_theme1 = () => this.playTheme1()
 
         //music
@@ -43,6 +43,7 @@ AFRAME.registerComponent('game-manager', {
 
     playerDead: function() {
         console.log("YOUR DED")
+        this.el.emit('player-dead-sound')
         this.el.emit('end-game')
         document.querySelectorAll('[enemy]').forEach(function(el) {
             el.pause();
@@ -52,13 +53,23 @@ AFRAME.registerComponent('game-manager', {
     bossStageAppear: function() {
         this.el.emit('bossStage')
         this.el.components.sound__stage1.stopSound()
-        this.el.emit('boss-theme-start')
+        this.el.emit('boom-sound')
+        this.el.emit('ground-rising-sound')
+        setTimeout(() => {
+            //this.el.emit('boss-theme-start')
+            this.el.emit('boss-talk-1-sound')
+            this.el.emit('ground-rise')
+        }, 4000)
         setTimeout(() => {
             this.activateTeleporter()
-        }, 8000)
+            this.el.emit('boss-talk-2-sound')
+        }, 12000)
+        setTimeout(() => {
+            this.el.emit('boss-theme-start')
+        }, 8500)
         setTimeout(() => {
             this.el.emit('bossEntry')
-        }, 10000);
+        }, 14500);
 
     },
 
@@ -75,7 +86,9 @@ AFRAME.registerComponent('game-manager', {
     lifeDown: function() {
         this.life -= 1
         console.log("life: "+this.life)
-        if(this.life <= 0) this.playerDead()
+        if(this.life <= 0) {
+            this.playerDead()
+        } else this.el.emit('player-hit-sound')
         this.lifeEls.forEach(elem => {
             elem.setAttribute('scale', `1 ${this.life/this.lifeMax} 1`)
         })

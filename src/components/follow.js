@@ -7,6 +7,7 @@ AFRAME.registerComponent('follow', {
     init: function () {
         this.directionVec3 = new THREE.Vector3();
         this.gameManager = document.querySelector('#game-manager');
+        this.nearTriggered = false
         
         this.el.addEventListener('player-dead', () => this.pause() );
         this.stepUp = this.el.object3D.position.y + 0.3
@@ -27,12 +28,18 @@ AFRAME.registerComponent('follow', {
         let currentPosition = this.el.object3D.position;
         directionVec3.copy(targetPosition).sub(currentPosition);
         let distance = directionVec3.length();
+        // alert player that a duck is near
+        if (distance < 7 && !this.nearTriggered) {
+            this.el.emit('near-enemy-sound')
+            this.nearTriggered = true
+        }
         // detect if enemy is on the platform
         if (distance < 4.5) {
             this.el.object3D.position.y = this.stepUp
         }
         // detect if enemy reached player
         if (distance < 1) {
+            this.el.emit('bite-sound')
             this.gameManager.emit('enemy-reached-player');
             this.el.removeAttribute('follow')
             return;
