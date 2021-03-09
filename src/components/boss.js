@@ -20,7 +20,6 @@ AFRAME.registerComponent('boss', {
         this.lifeBarInitialWidth = 20
         this.maxLife = this.data.life
         this.target = this.data.lookAt.object3D.position
-        this.lookAtActive = true
         this.timeoutW2
         /* this.animationInProgress = false
         this.animationToFinish = false */
@@ -32,9 +31,6 @@ AFRAME.registerComponent('boss', {
         this.handl_died = () => this.died(this.el)
         
         this.el.addEventListener('appear', this.attack);
-        this.el.addEventListener('toggle-look-at', () => {
-            this.lookAtActive = !this.lookAtActive
-        });
         this.el.addEventListener('hit', this.handl_hitted);
         this.el.addEventListener('phase2transition', this.handl_phase2transition);
         this.el.addEventListener('phase3transition', this.handl_phase3transition);
@@ -65,13 +61,8 @@ AFRAME.registerComponent('boss', {
         //this.attack()
     },
 
-    pauseLookAt: function() {
-        let rotation = this.el.object3D.rotation
-        this.lookAtActive = false
-    },
-
     tick: function (time, timeDelta) {
-        if (this.lookAtActive) this.el.object3D.lookAt(new THREE.Vector3(this.target.x,this.target.y, this.target.z));
+        this.el.object3D.lookAt(new THREE.Vector3(this.target.x,this.target.y, this.target.z));
     },
 
     pause: function() {

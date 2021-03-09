@@ -10,8 +10,11 @@ AFRAME.registerComponent('game-manager', {
         this.lifeMax = 10
         this.life = 10
         this.score = 0
-        this.scoreForBoss = 3000
+        this.duckDead = 0
+        this.duckDeadForBoss = 60
+        this.gameEnded = false
         this.handl_theme1 = () => this.playTheme1()
+        this.handl_shoot = () => this.player_shooted()
 
         this.el.addEventListener('sound-loaded', (evt) => {
             if (evt.detail.id == "stage1") {
@@ -25,11 +28,12 @@ AFRAME.registerComponent('game-manager', {
             this.lifeDown()
         });
         this.el.addEventListener('die', () => {
-            this.scoreUp() 
+            this.duckDied() 
         });
         this.el.addEventListener('boss-died', () => {
             this.bossDead() 
         });
+        this.el.addEventListener('shoot', this.handl_shoot);
         
     },
 
@@ -40,6 +44,7 @@ AFRAME.registerComponent('game-manager', {
     },
 
     tick: function (time, timeDelta) {
+        if(this.gameEnded) this.totalTime = time
     },
 
     playerDead: function() {
@@ -50,11 +55,21 @@ AFRAME.registerComponent('game-manager', {
         this.endGame()
     },
 
+    player_shooted: function() {
+        this.score -= 10
+        this.updateScoreEl()
+    },
+
     bossDead: function() {
         this.el.components.sound__boss.stopSound()
+        this.gameEnded = true
         this.endGame()
         setTimeout(() => {
+            let finalScore = Math.ceil(( this.life * this.score ) / (this.totalTime/1000))
+            let finalScoreDetails = `(life: ${this.life} * score: ${this.score} / time: ${Math.ceil(this.totalTime/1000)})`
             document.getElementById('title').setAttribute('text', {value: 'You Won!'})
+            document.getElementById('final-score-detail').setAttribute('text', {value: finalScoreDetails})
+            document.getElementById('final-score').setAttribute('text', {value: `Final score: ${finalScore} points`})
             document.getElementById('end-panel').setAttribute('color', '#5ebd4d')
             document.getElementById('end-panel').setAttribute('visible', true)
         }, 3000);
@@ -73,6 +88,7 @@ AFRAME.registerComponent('game-manager', {
     },
 
     bossStageAppear: function() {
+        this.el.removeEventListener('shoot', this.handl_shoot);
         this.el.emit('bossStage')
         this.el.components.sound__stage1.stopSound()
         this.el.emit('boom-sound')
@@ -95,9 +111,14 @@ AFRAME.registerComponent('game-manager', {
 
     },
 
-    scoreUp: function() {
+    duckDied: function() {
+        this.duckDead += 1
         this.score += 50
-        if(this.score == this.scoreForBoss) this.bossStageAppear()
+        if(this.duckDead == this.duckDeadForBoss) this.bossStageAppear()
+        this.updateScoreEl()
+    },
+
+    updateScoreEl: function() {
         this.scoreEls.forEach(elem => {
             elem.setAttribute('text', {
                 value: this.score

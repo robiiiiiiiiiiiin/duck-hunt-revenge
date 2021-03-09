@@ -55,6 +55,7 @@
       <!-- managers -->
       <a-entity id="game-manager" game-manager
         listen-to__died="target: #boss; event: died; emit: boss-died"
+        listen-to__shoot="target: #right-hand; event: shoot; emit: shoot"
         sound__stage1="src: #stage1-theme; loop: true; on: stage1-theme-start; positional: false; volume: 0.7; autoplay: true"
         sound__boss="src: #boss-theme; loop: true; on: boss-theme-start; positional: false; volume: 0.9"
         sound__player-hit="src: #player-hit; on: player-hit-sound; positional: false; volume: 0.7"
@@ -154,9 +155,13 @@
         </a-entity>
 
         <!-- game over plane -->
-        <a-plane id="end-panel" height="4" width="4" color="#bd6c51" position="0 1 -3" visible="false">
-          <a-entity id="title" text="value: You loose; align: center; color: black; wrapCount: 9; width: 3.5" position="0 1.5 0"></a-entity>
-          <a-entity text="value: Refresh the page to play again; align: center; color: black; wrapCount: 30; width: 3.5"  position="0 1 0"></a-entity>
+        <a-plane id="end-panel" height="5" width="4" color="#bd6c51" position="0 1 -3" visible="false">
+          <a-entity id="title" text="value: You loose; align: center; color: black; wrapCount: 9; width: 3.5" position="0 2 0"></a-entity>
+          <a-entity text="value: Refresh the page to play again; align: center; color: black; wrapCount: 30; width: 3.5"  position="0 1.5 0"></a-entity>
+
+          <a-entity id="final-score" text="align: center; color: black; wrapCount: 30; width: 3.5" position="0 1.15 0"></a-entity>
+          <a-entity id="final-score-detail" text="align: center; color: black; wrapCount: 50; width: 3.5" position="0 0.95 0"></a-entity>
+
           <a-entity text="value: Credits - graphical assets:; align: left; color: black; wrapCount: 30; width: 3.5"  position="0 0.5 0"></a-entity>
           <a-entity text="value: LiNCHx - Low Poly / Voxel Duck; align: left; color: black; wrapCount: 50; width: 3.5"  position="0 0.2 0"></a-entity>
           <a-entity text="value: ricksticky - Rubber Duck; align: left; color: black; wrapCount: 50; width: 3.5"  position="0 0 0"></a-entity>
