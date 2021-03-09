@@ -20,6 +20,7 @@ AFRAME.registerComponent('hexatile', {
     size: {type: 'int', default: 10},
     color: {type: 'color', default: '#216138'},
     rayInterColor: {type: 'color', default: '#18a370'},
+    blinkColor: {type: 'color', default: '#eb4034'},
     'color-variation': {type: 'boolean', default: true},
     'color-variation-entropy': {type: 'int', default: 20},
     'color-variation-number': {type: 'int', default: 3},
@@ -32,23 +33,57 @@ AFRAME.registerComponent('hexatile', {
     this.colorVariation = [];
     this.colorVariationMaterial = [];
     this.colorNodesVariation = new Map();
-    this.rayInterClearColor = this.data.color
+    this.clearColor = this.data.color
     this.genAll();
     this.worldPosition = new THREE.Vector3();
 
     // raycaster
-    this.el.addEventListener('raycaster-intersected', function () {
+    this.handl_raycast_inter = () => {
       this.data.color = this.data.rayInterColor
-      //this.update({color: this.rayInterClearColor})
       this.changeColor()
       this.el.addEventListener('mousedown', () => this.teleport());
-    }.bind(this));
-    this.el.addEventListener('raycaster-intersected-cleared', function () {
-      this.data.color = this.rayInterClearColor
-      //this.update({color: this.data.rayInterColor})
+    }
+    this.handl_raycast_inter_clear = () => {
+      this.data.color = this.clearColor
       this.changeColor()
       this.el.removeEventListener('mousedown', () => this.teleport());
-    }.bind(this));
+    }
+
+    this.el.addEventListener('raycaster-intersected', this.handl_raycast_inter);
+    this.el.addEventListener('raycaster-intersected-cleared', this.handl_raycast_inter_clear);
+
+    // alarm
+    this.el.addEventListener('blink', function() {
+        let goRed = () => {this.data.color = this.data.blinkColor; this.changeColor(); this.el.querySelector('[mixin=spike]').emit('alarm-sound')}
+        let goGreen = () => {this.data.color = this.clearColor; this.changeColor()}
+        
+        this.el.removeEventListener('raycaster-intersected', this.handl_raycast_inter);
+        this.el.removeEventListener('raycaster-intersected-cleared', this.handl_raycast_inter_clear);
+        
+        goRed()
+        setTimeout(goGreen, 350);
+        setTimeout(goRed, 700);
+        setTimeout(goGreen, 1050);
+        setTimeout(goRed, 1400);
+        setTimeout(goGreen, 1750);
+        setTimeout(goRed, 2100);
+        setTimeout(goGreen, 2450);
+        setTimeout(goRed, 2800);
+        setTimeout(goGreen, 2975);
+        setTimeout(goRed, 3150);
+        setTimeout(goGreen, 3325);
+        setTimeout(goRed, 3500);
+        setTimeout(goGreen, 3675);
+        setTimeout(goRed, 3850);
+        setTimeout(goGreen, 4025);
+        setTimeout(goRed, 4200);
+        setTimeout(() => {
+          goGreen()
+          this.el.addEventListener('raycaster-intersected', this.handl_raycast_inter);
+          this.el.addEventListener('raycaster-intersected-cleared', this.handl_raycast_inter_clear);
+        }, 5300);
+
+    }.bind(this))
 
   },
   genAll: function () {
@@ -232,11 +267,12 @@ AFRAME.registerComponent('hexatile', {
   },
   teleport: function() {
     let hexatilePosition = this.el.object3D.getWorldPosition(this.worldPosition)
-    document.getElementById('rig').object3D.position.set(
+    /* document.getElementById('rig').object3D.position.set(
       hexatilePosition.x,
       0,
       hexatilePosition.z
-    )
+    ) */
+    document.getElementById('rig').setAttribute('position', {x: hexatilePosition.x, y: 0, z: hexatilePosition.z});
   },
   remove: function () {
     this.el.removeObject3D('mesh');

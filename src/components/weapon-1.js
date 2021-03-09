@@ -42,10 +42,11 @@ AFRAME.registerComponent('weapon-1', {
         this.el.setAttribute('weapon-shoot', {
             target: `${this.playerPosition.x} ${this.playerPosition.y} ${this.playerPosition.z}`,
             player: "#body",
-            speed: 8
+            speed: 25
         })
         setTimeout(() => {
             this.el.parentNode.removeChild(this.el)
+            this.el.destroy()
         }, 5000);
     },
 });

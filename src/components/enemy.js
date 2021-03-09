@@ -4,8 +4,6 @@ AFRAME.registerComponent('enemy', {
     },
 
     init: function () {
-        //console.log("init enemy")
-
         this.gameManager = document.getElementById('game-manager')
 
         // set inital position & rotation
@@ -29,6 +27,7 @@ AFRAME.registerComponent('enemy', {
     },
 
     remove: function () {
+        
     },
 
     tick: function (time, timeDelta) {
@@ -36,12 +35,10 @@ AFRAME.registerComponent('enemy', {
     },
 
     hitted: function (el) {
-        console.log("hit")
         //el.parentNode.removeChild(el);
     },
 
     died: function (el) {
-        console.log("die")
         this.el.emit('quack-sound')
         this.gameManager.emit('die')
         // fall & disappear
@@ -59,6 +56,16 @@ AFRAME.registerComponent('enemy', {
             }
         }
         setTimeout(() => {el.pause()}, 150)
-        setTimeout(() => {el.parentNode.removeChild(el)}, 500)
+        setTimeout(() => {
+            //console.log(el.Audio)
+            /* el.components.sound__quack.stopSound()
+            el.components.sound__bite.stopSound()
+            el.components.sound__nearenemy.stopSound()
+            el.removeAttribute('sound__quack')
+            el.removeAttribute('sound__bite')
+            el.removeAttribute('sound__nearenemy') */
+            el.parentNode.removeChild(el)
+            el.destroy()
+        }, 500)
     },
 });

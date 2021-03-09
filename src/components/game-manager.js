@@ -5,29 +5,30 @@ AFRAME.registerComponent('game-manager', {
     init: function () {
         this.scoreEls = document.querySelectorAll('.score');
         this.lifeEls = document.querySelectorAll('.life');
-        this.lifeMax = 5
-        this.life = 5
+        this.navmeshStage = document.querySelector('#nav-mesh-stage')
+        this.navmeshBoss = document.querySelector('#nav-mesh-boss')
+        this.lifeMax = 10
+        this.life = 10
         this.score = 0
-        this.scoreForBoss = 50
+        this.scoreForBoss = 3000
         this.handl_theme1 = () => this.playTheme1()
 
-        //music
         this.el.addEventListener('sound-loaded', (evt) => {
             if (evt.detail.id == "stage1") {
                 document.body.addEventListener('mousedown', this.handl_theme1);
             }
         });
-        // life down listeners
         this.el.addEventListener('enemy-reached-player', () => {
             this.lifeDown()
         });
         this.el.addEventListener('weapon-hit-player', () => {
             this.lifeDown()
         });
-
-        // score
         this.el.addEventListener('die', () => {
             this.scoreUp() 
+        });
+        this.el.addEventListener('boss-died', () => {
+            this.bossDead() 
         });
         
     },
@@ -42,12 +43,33 @@ AFRAME.registerComponent('game-manager', {
     },
 
     playerDead: function() {
-        console.log("YOUR DED")
         this.el.emit('player-dead-sound')
-        this.el.emit('end-game')
+        this.el.components.sound__stage1.stopSound()
+        this.el.components.sound__boss.stopSound()
+        document.getElementById('end-panel').setAttribute('visible', true)
+        this.endGame()
+    },
+
+    bossDead: function() {
+        this.el.components.sound__boss.stopSound()
+        this.endGame()
+        setTimeout(() => {
+            document.getElementById('title').setAttribute('text', {value: 'You Won!'})
+            document.getElementById('end-panel').setAttribute('color', '#5ebd4d')
+            document.getElementById('end-panel').setAttribute('visible', true)
+        }, 3000);
+    },
+
+    endGame: function() {
         document.querySelectorAll('[enemy]').forEach(function(el) {
-            el.pause();
+            el.remove();
         });
+        document.querySelectorAll('[click-to-shoot]').forEach(function(el) {
+            el.remove();
+        });
+        setTimeout(() => {
+            document.querySelector('[boss]').pause();
+        }, 2000);
     },
 
     bossStageAppear: function() {
@@ -56,12 +78,12 @@ AFRAME.registerComponent('game-manager', {
         this.el.emit('boom-sound')
         this.el.emit('ground-rising-sound')
         setTimeout(() => {
-            //this.el.emit('boss-theme-start')
             this.el.emit('boss-talk-1-sound')
             this.el.emit('ground-rise')
         }, 4000)
         setTimeout(() => {
             this.activateTeleporter()
+            this.switchNavMesh()
             this.el.emit('boss-talk-2-sound')
         }, 12000)
         setTimeout(() => {
@@ -85,7 +107,6 @@ AFRAME.registerComponent('game-manager', {
 
     lifeDown: function() {
         this.life -= 1
-        console.log("life: "+this.life)
         if(this.life <= 0) {
             this.playerDead()
         } else this.el.emit('player-hit-sound')
@@ -108,6 +129,13 @@ AFRAME.registerComponent('game-manager', {
                 enabled: true
             })
         }
+    },
+
+    switchNavMesh: function() {
+        this.navmeshStage.removeAttribute('nav-mesh');
+        this.navmeshStage.setAttribute('nav-mesh-disable', '');
+        this.navmeshBoss.removeAttribute('nav-mesh-disable');
+        this.navmeshBoss.setAttribute('nav-mesh', '');
     },
 
     playTheme1: function() {
