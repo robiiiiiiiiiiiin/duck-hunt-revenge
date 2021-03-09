@@ -82,6 +82,7 @@ AFRAME.registerComponent('game-manager', {
         document.querySelectorAll('[click-to-shoot]').forEach(function(el) {
             el.remove();
         });
+        document.querySelector('[enemy-spawner]').remove();
         setTimeout(() => {
             document.querySelector('[boss]').pause();
         }, 2000);
