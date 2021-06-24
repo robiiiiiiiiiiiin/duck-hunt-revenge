@@ -11,7 +11,7 @@ AFRAME.registerComponent('game-manager', {
         this.life = 10
         this.score = 0
         this.duckDead = 0
-        this.duckDeadForBoss = 60
+        this.duckDeadForBoss = 30
         this.gameEnded = false
         this.handl_theme1 = () => this.playTheme1()
         this.handl_shoot = () => this.player_shooted()
